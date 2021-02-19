@@ -1,2 +1,2 @@
 # huhumt.github.io
-this is my private blog system.
+This is my private blog system
