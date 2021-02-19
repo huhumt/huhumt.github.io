@@ -1,40 +1,37 @@
 # Info about you
-name: Your Name
-position: Job Title
-email: youremail@gmail.com
-company_name: Company Name
-company_url: https://www.yourcompany.com
-place_name: City, ST
+name: TinyFish
+position: Firmware Engineer
+email: nepood@gmail.com
+#company_name: Focaltech System Technology CO.,Ltd
+#company_url: https://www.yourcompany.com
+place_name: Shenzhen, Guangdong, China
 
 # Blog info
-title: Your Name's Blog
-description: Blog
-url: https://brendanhasz.github.io/github-io-blog-template/
-main_github_io: false
+title: TinyFish's Blog
+description: This is my private blog system
+url: https://huhumt.github.io
+main_github_io: true
 long_description: >-
-    Hi!  Welcome to the template github.io blog site.  This can be a paragraph
-    introducing yourself which will go at the top of the main page for your
-    blog.
+    Hi! This is my own blog system to record my daily life.
 
 # Social links
-github_url: https://github.com/yourgithubusername
-linkedin_url: http://www.linkedin.com/in/your-name
+github_url: https://github.com/huhumt
+#linkedin_url: http://www.linkedin.com/in/your-name
 social:
   links:
-    - http://www.linkedin.com/in/your-name
-    - https://github.com/yourgithubusername
+    - https://github.com/huhumt
 
 # Images + files
 logo: assets/img/headshot.svg
-cv_url: assets/files/cv.pdf
-resume_url: assets/files/resume.pdf
+#cv_url: assets/files/cv.pdf
+#resume_url: assets/files/resume.pdf
 
 # Blog settings
 markdown: kramdown
 plugins:
   - jekyll-seo-tag
 highlighter: rouge
-color_mode: auto  # auto, light, or dark
+color_mode: light #auto  # auto, light, or dark
 comments: false
 disqus_shortname: none
 syntax_highlight_stylesheet: syntax_highlight.css
@@ -44,7 +41,7 @@ colors:
   text: 282828
   tag: dbefdc
   tag_hover: 93cf95
-  header_background: 2b422b
+  header_background: 9db2de #2b422b
   header_text: dbefdc
   header_link_hover: 93cf95
   links: 459c48
