@@ -51,6 +51,9 @@ Get assets path
       <!-- Large header banner on left for large display widths -->
       <div class="big_header">
 
+        <br>
+        <br>
+        <br>
         <a href=""><img src="{{ site.logo }}" alt="Logo" class="center_img" ></a>
 
         <!-- Name -->
@@ -95,7 +98,13 @@ Get assets path
             <a href="{{ site.github_url }}">
               <div class="col2">
                 <img src="{{ assets }}/img/github_icon_light.png" height="16" width="16">
-                <span> Github: "{{ site.github_url }}" </span>
+                <span> Github:  </span>
+              </div>
+            </a>
+
+            <a href="">
+              <div class="col2">
+                {{ site.github_url }}
               </div>
             </a>
 
@@ -113,7 +122,7 @@ Get assets path
             <a href="mailto:{{ site.email }}">
               <div class="col2">
                 <img src="{{ assets }}/img/email_icon_light.png" height="16" width="16">
-                <span> Email: "{{ site.email }}" </span>
+                <span> Email: {{ site.email }} </span>
               </div>
             </a>
 
@@ -175,7 +184,7 @@ Get assets path
                   <a href="{{ site.github_url }}">
                     <div class="col2">
                       <img src="{{ assets }}/img/github_icon_light.png" height="16" width="16">
-                      <span> Github: "{{ site.github_url }}" </span>
+                      <span> Github: {{ site.github_url }} </span>
                     </div>
                   </a>
 
@@ -193,7 +202,7 @@ Get assets path
                   <a href="mailto:{{ site.email }}">
                     <div class="col2">
                       <img src="{{ assets }}/img/email_icon_light.png" height="16" width="16">
-                      <span> Email: "{{ site.email }}" </span>
+                      <span> Email: {{ site.email }} </span>
                     </div>
                   </a>
 
