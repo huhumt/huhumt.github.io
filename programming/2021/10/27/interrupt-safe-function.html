@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+	<meta charset="utf-8">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge">
+	<meta name="viewport" content="width=device-width, initial-scale=1"><link type="application/atom+xml" rel="alternate" href="https://huhumt.github.io/feed.xml" title="" /></head>
+<style>@import url(/public/css/syntax/monokai.css);</style>
+  <title></title>
+  <!-- <link href="/public/css/bootstrap.min.css" rel="stylesheet"> -->
+
+  <link href="/public/css/style.css" rel="stylesheet">
+    <head>
+        <!-- some other meta -->
+        
+        <!-- some other stuff like link or script -->
+    </head>
+  <body>
+  	<div class="container">
+		<div class="sidebar">
+			<div class="sidebar-item sidebar-header">
+    <head>
+       <title>Profile image</title>
+    </head>
+	<div class='sidebar-brand'>
+		<!-- <a href="/about/"></a> -->
+		<a href="/"><p style="font-size:75%"></p></a>
+	</div>
+    <body>
+       <a href="https://en.lichess.org/">
+          <img alt="Play Chess with me" src="/public/img/robot-and-girl.jpg"
+          width="200px" height="200px" align="center">
+       </a>
+    </body>
+	<p class="lead" align="center" style="font-size:80%">This is my own small site</p></div>
+
+<div class="sidebar-item sidebar-nav">
+	<ul class="nav">
+      <li class="nav-title">Pages</li>
+	  <li><a class="nav-item" href="/">Articles</a></li>
+	  <li><a class="nav-item" href="/about">About</a></li>
+	</ul>
+</div>
+
+<div class="sidebar-item sidebar-nav">
+  	<ul class="nav">
+        <li class="nav-title">Categories</li>
+	    
+	    <li>
+	    	<a class="nav-item" href="/category/#Public">
+				<span class="name">Public</span>
+				<span class="badge">1</span>
+	    	</a>
+ 		</li>
+	    
+	    <li>
+	    	<a class="nav-item" href="/category/#Life">
+				<span class="name">Life</span>
+				<span class="badge">1</span>
+	    	</a>
+ 		</li>
+	    
+	    <li>
+	    	<a class="nav-item" href="/category/#Programming">
+				<span class="name">Programming</span>
+				<span class="badge">1</span>
+	    	</a>
+ 		</li>
+	    
+	  </nav>
+	</ul>
+</div>
+
+<!-- <div class="sidebar-item sidebar-footer"> -->
+<!-- 	<p>Powered by <a href="https://github.com/jekyll/jekyll">Jekyll</a></p> -->
+<!-- </div> -->
+
+		</div>
+		<div class="content">
+			<article class="post">
+	<header class="post-header">
+		<div class="post-title">
+			Write interrupt safe function
+		</div>
+		<time class="post-date dt-published" datetime="2021-10-27T07:32:23-05:00" itemprop="datePublished">2021/10/27
+		</time>
+	</header>
+
+	<div class="post-content">
+		<p>如何保证主函数被中断函数打断后正常运行？
+先看如下的例子：</p>
+
+<figure class="highlight"><pre><code class="language-c" data-lang="c"><span class="k">static</span> <span class="k">volatile</span> <span class="kt">uint8_t</span> <span class="n">g_ucIntCnt</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+
+<span class="kt">void</span> <span class="n">RTC_ISR</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span> <span class="n">interrupt</span> <span class="mi">5</span>
+<span class="p">{</span>
+    <span class="n">g_ucIntCnt</span><span class="o">++</span><span class="p">;</span>
+<span class="p">}</span>
+
+<span class="kt">void</span> <span class="nf">loop</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span>                      <span class="o">|</span>  <span class="kt">void</span> <span class="n">loop</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span>
+<span class="p">{</span>                                    <span class="o">|</span>  <span class="p">{</span>
+    <span class="k">while</span> <span class="p">(</span><span class="mi">1</span><span class="p">)</span>                        <span class="o">|</span>      <span class="k">while</span> <span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+    <span class="p">{</span>                                <span class="o">|</span>      <span class="p">{</span>
+        <span class="n">do_something1</span><span class="p">();</span>             <span class="o">|</span>          <span class="n">do_something1</span><span class="p">();</span>
+                                     <span class="o">|</span>
+        <span class="k">if</span> <span class="p">(</span><span class="n">g_ucIntCnt</span> <span class="o">==</span> <span class="mi">100</span><span class="p">)</span>       <span class="o">|</span>          <span class="k">if</span> <span class="p">(</span><span class="n">g_ucIntCnt</span> <span class="o">&gt;=</span> <span class="mi">100</span><span class="p">)</span>
+        <span class="p">{</span>                            <span class="o">|</span>          <span class="p">{</span>
+            <span class="n">do_something2</span><span class="p">();</span>         <span class="o">|</span>              <span class="n">do_something2</span><span class="p">();</span>
+        <span class="p">}</span>                            <span class="o">|</span>              <span class="n">g_ucIntCnt</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+                                     <span class="o">|</span>          <span class="p">}</span>
+        <span class="n">g_ucIntCnt</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>              <span class="o">|</span>
+        <span class="n">do_something3</span><span class="p">();</span>             <span class="o">|</span>          <span class="n">do_something3</span><span class="p">();</span>
+    <span class="p">}</span>                                <span class="o">|</span>      <span class="p">}</span>
+<span class="p">}</span>                                    <span class="o">|</span>  <span class="p">}</span>
+
+<span class="kt">void</span> <span class="nf">main</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span>
+<span class="p">{</span>
+    <span class="n">init</span><span class="p">();</span>
+    <span class="n">loop</span><span class="p">();</span>
+<span class="p">}</span></code></pre></figure>
+
+<p>请思考一下，程序中的 do_something2 会按预期每隔 100 个 rtc 单位运行一次吗？<br />
+左边的代码中：<br /></p>
+<ol>
+  <li>由于 do_something1 的代码复杂度未知，很大概率无法撞上 g_ucIntCnt = 100 的条件；<br /></li>
+  <li>另一方面，如果 do_something1 很短，在主循环中，在 g_ucIntCnt 还很小时过早清 0，也会导致无法满足条件；<br /></li>
+  <li>即使刚好凑巧，可以运行到 do_something2，假如函数内部有用到 g_ucIntCnt 也会导致程序错误。<br /></li>
+</ol>
+
+<p>右边的代码中：<br /></p>
+<ol>
+  <li>如果 do_something1 过于复杂，导致运行完之后 g_ucIntCnt 已经溢出，也无法运行 do_something2；<br /></li>
+  <li>同样有左边代码 3 的问题。<br /></li>
+</ol>
+
+<figure class="highlight"><pre><code class="language-c" data-lang="c"><span class="k">static</span> <span class="k">volatile</span> <span class="kt">uint8_t</span> <span class="n">g_ucIntCnt</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+<span class="k">static</span> <span class="k">volatile</span> <span class="kt">uint8_t</span> <span class="n">g_ucIntCntFlag</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+
+<span class="kt">void</span> <span class="n">RTC_ISR</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span> <span class="n">interrupt</span> <span class="mi">5</span>
+<span class="p">{</span>
+    <span class="n">g_ucIntCnt</span><span class="o">++</span><span class="p">;</span>
+
+    <span class="k">if</span> <span class="p">(</span><span class="n">g_ucIntCnt</span> <span class="o">==</span> <span class="mi">100</span><span class="p">)</span>
+    <span class="p">{</span>
+        <span class="n">g_ucIntCntFlag</span> <span class="o">=</span> <span class="mi">1</span><span class="p">;</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+
+<span class="kt">void</span> <span class="nf">loop</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span>
+<span class="p">{</span>
+    <span class="k">while</span> <span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+    <span class="p">{</span>
+        <span class="n">do_something1</span><span class="p">();</span>
+
+        <span class="k">if</span> <span class="p">(</span><span class="n">g_ucIntCntFlag</span><span class="p">)</span>
+        <span class="p">{</span>
+            <span class="n">do_something2</span><span class="p">();</span>
+            <span class="n">g_ucIntCnt</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+            <span class="n">g_ucIntCntFlag</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+        <span class="p">}</span>
+
+        <span class="n">do_something3</span><span class="p">();</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+
+<span class="kt">void</span> <span class="nf">main</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span>
+<span class="p">{</span>
+    <span class="n">init</span><span class="p">();</span>
+    <span class="n">loop</span><span class="p">();</span>
+<span class="p">}</span></code></pre></figure>
+
+
+	</div>
+</article>
+
+<script src="https://giscus.app/client.js"
+        data-repo="huhumt/huhumt.github.io"
+        data-repo-id="R_kgDOGSPx2A"
+        data-category="Comment"
+        data-category-id="DIC_kwDOGSPx2M4CpUS-"
+        data-mapping="pathname"
+        data-strict="0"
+        data-reactions-enabled="1"
+        data-emit-metadata="0"
+        data-input-position="top"
+        data-theme="light"
+        data-lang="en"
+        data-loading="lazy"
+        crossorigin="anonymous"
+        async>
+</script>
+
+		</div>
+	</div>
+  </body>
+</html>
