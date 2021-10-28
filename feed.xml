@@ -1,0 +1,92 @@
+<?xml version="1.0" encoding="utf-8"?><feed xmlns="http://www.w3.org/2005/Atom" ><generator uri="https://jekyllrb.com/" version="4.2.1">Jekyll</generator><link href="/feed.xml" rel="self" type="application/atom+xml" /><link href="/" rel="alternate" type="text/html" /><updated>2021-10-28T17:34:17+08:00</updated><id>/feed.xml</id><title type="html">Hu Hao’s site</title><subtitle>This is my own small site</subtitle><entry><title type="html">Write interrupt safe function</title><link href="/programming/2021/10/27/interrupt-safe-function.html" rel="alternate" type="text/html" title="Write interrupt safe function" /><published>2021-10-27T20:32:23+08:00</published><updated>2021-10-27T20:32:23+08:00</updated><id>/programming/2021/10/27/interrupt-safe-function</id><content type="html" xml:base="/programming/2021/10/27/interrupt-safe-function.html">&lt;p&gt;如何保证主函数被中断函数打断后正常运行？
+先看如下的例子：&lt;/p&gt;
+
+&lt;figure class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-c&quot; data-lang=&quot;c&quot;&gt;&lt;span class=&quot;k&quot;&gt;static&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;volatile&lt;/span&gt; &lt;span class=&quot;kt&quot;&gt;uint8_t&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;g_ucIntCnt&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;0&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
+
+&lt;span class=&quot;kt&quot;&gt;void&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;RTC_ISR&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;kt&quot;&gt;void&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;interrupt&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;5&lt;/span&gt;
+&lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;
+    &lt;span class=&quot;n&quot;&gt;g_ucIntCnt&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;++&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
+&lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;
+
+&lt;span class=&quot;kt&quot;&gt;void&lt;/span&gt; &lt;span class=&quot;nf&quot;&gt;loop&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;kt&quot;&gt;void&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;                      &lt;span class=&quot;o&quot;&gt;|&lt;/span&gt;  &lt;span class=&quot;kt&quot;&gt;void&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;loop&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;kt&quot;&gt;void&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
+&lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;                                    &lt;span class=&quot;o&quot;&gt;|&lt;/span&gt;  &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;
+    &lt;span class=&quot;k&quot;&gt;while&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;1&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;                        &lt;span class=&quot;o&quot;&gt;|&lt;/span&gt;      &lt;span class=&quot;k&quot;&gt;while&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;1&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
+    &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;                                &lt;span class=&quot;o&quot;&gt;|&lt;/span&gt;      &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;
+        &lt;span class=&quot;n&quot;&gt;do_something1&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;();&lt;/span&gt;             &lt;span class=&quot;o&quot;&gt;|&lt;/span&gt;          &lt;span class=&quot;n&quot;&gt;do_something1&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;();&lt;/span&gt;
+                                     &lt;span class=&quot;o&quot;&gt;|&lt;/span&gt;
+        &lt;span class=&quot;k&quot;&gt;if&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;g_ucIntCnt&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;==&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;100&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;       &lt;span class=&quot;o&quot;&gt;|&lt;/span&gt;          &lt;span class=&quot;k&quot;&gt;if&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;g_ucIntCnt&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;&amp;gt;=&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;100&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
+        &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;                            &lt;span class=&quot;o&quot;&gt;|&lt;/span&gt;          &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;
+            &lt;span class=&quot;n&quot;&gt;do_something2&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;();&lt;/span&gt;         &lt;span class=&quot;o&quot;&gt;|&lt;/span&gt;              &lt;span class=&quot;n&quot;&gt;do_something2&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;();&lt;/span&gt;
+        &lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;                            &lt;span class=&quot;o&quot;&gt;|&lt;/span&gt;              &lt;span class=&quot;n&quot;&gt;g_ucIntCnt&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;0&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
+                                     &lt;span class=&quot;o&quot;&gt;|&lt;/span&gt;          &lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;
+        &lt;span class=&quot;n&quot;&gt;g_ucIntCnt&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;0&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;              &lt;span class=&quot;o&quot;&gt;|&lt;/span&gt;
+        &lt;span class=&quot;n&quot;&gt;do_something3&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;();&lt;/span&gt;             &lt;span class=&quot;o&quot;&gt;|&lt;/span&gt;          &lt;span class=&quot;n&quot;&gt;do_something3&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;();&lt;/span&gt;
+    &lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;                                &lt;span class=&quot;o&quot;&gt;|&lt;/span&gt;      &lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;
+&lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;                                    &lt;span class=&quot;o&quot;&gt;|&lt;/span&gt;  &lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;
+
+&lt;span class=&quot;kt&quot;&gt;void&lt;/span&gt; &lt;span class=&quot;nf&quot;&gt;main&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;kt&quot;&gt;void&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
+&lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;
+    &lt;span class=&quot;n&quot;&gt;init&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;();&lt;/span&gt;
+    &lt;span class=&quot;n&quot;&gt;loop&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;();&lt;/span&gt;
+&lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;
+
+&lt;p&gt;请思考一下，程序中的 do_something2 会按预期每隔 100 个 rtc 单位运行一次吗？&lt;br /&gt;
+左边的代码中：&lt;br /&gt;&lt;/p&gt;
+&lt;ol&gt;
+  &lt;li&gt;由于 do_something1 的代码复杂度未知，很大概率无法撞上 g_ucIntCnt = 100 的条件；&lt;br /&gt;&lt;/li&gt;
+  &lt;li&gt;另一方面，如果 do_something1 很短，在主循环中，在 g_ucIntCnt 还很小时过早清 0，也会导致无法满足条件；&lt;br /&gt;&lt;/li&gt;
+  &lt;li&gt;即使刚好凑巧，可以运行到 do_something2，假如函数内部有用到 g_ucIntCnt 也会导致程序错误。&lt;br /&gt;&lt;/li&gt;
+&lt;/ol&gt;
+
+&lt;p&gt;右边的代码中：&lt;br /&gt;&lt;/p&gt;
+&lt;ol&gt;
+  &lt;li&gt;如果 do_something1 过于复杂，导致运行完之后 g_ucIntCnt 已经溢出，也无法运行 do_something2；&lt;br /&gt;&lt;/li&gt;
+  &lt;li&gt;同样有左边代码 3 的问题。&lt;br /&gt;&lt;/li&gt;
+&lt;/ol&gt;
+
+&lt;figure class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-c&quot; data-lang=&quot;c&quot;&gt;&lt;span class=&quot;k&quot;&gt;static&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;volatile&lt;/span&gt; &lt;span class=&quot;kt&quot;&gt;uint8_t&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;g_ucIntCnt&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;0&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
+&lt;span class=&quot;k&quot;&gt;static&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;volatile&lt;/span&gt; &lt;span class=&quot;kt&quot;&gt;uint8_t&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;g_ucIntCntFlag&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;0&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
+
+&lt;span class=&quot;kt&quot;&gt;void&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;RTC_ISR&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;kt&quot;&gt;void&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;interrupt&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;5&lt;/span&gt;
+&lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;
+    &lt;span class=&quot;n&quot;&gt;g_ucIntCnt&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;++&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
+
+    &lt;span class=&quot;k&quot;&gt;if&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;g_ucIntCnt&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;==&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;100&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
+    &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;
+        &lt;span class=&quot;n&quot;&gt;g_ucIntCntFlag&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;1&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
+    &lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;
+&lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;
+
+&lt;span class=&quot;kt&quot;&gt;void&lt;/span&gt; &lt;span class=&quot;nf&quot;&gt;loop&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;kt&quot;&gt;void&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
+&lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;
+    &lt;span class=&quot;k&quot;&gt;while&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;1&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
+    &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;
+        &lt;span class=&quot;n&quot;&gt;do_something1&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;();&lt;/span&gt;
+
+        &lt;span class=&quot;k&quot;&gt;if&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;g_ucIntCntFlag&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
+        &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;
+            &lt;span class=&quot;n&quot;&gt;do_something2&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;();&lt;/span&gt;
+            &lt;span class=&quot;n&quot;&gt;g_ucIntCnt&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;0&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
+            &lt;span class=&quot;n&quot;&gt;g_ucIntCntFlag&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;0&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
+        &lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;
+
+        &lt;span class=&quot;n&quot;&gt;do_something3&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;();&lt;/span&gt;
+    &lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;
+&lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;
+
+&lt;span class=&quot;kt&quot;&gt;void&lt;/span&gt; &lt;span class=&quot;nf&quot;&gt;main&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;kt&quot;&gt;void&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
+&lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;
+    &lt;span class=&quot;n&quot;&gt;init&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;();&lt;/span&gt;
+    &lt;span class=&quot;n&quot;&gt;loop&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;();&lt;/span&gt;
+&lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;</content><author><name></name></author><category term="Programming" /><summary type="html">如何保证主函数被中断函数打断后正常运行？ 先看如下的例子： static volatile uint8_t g_ucIntCnt = 0; void RTC_ISR(void) interrupt 5 { g_ucIntCnt++; } void loop(void) | void loop(void) { | { while (1) | while (1) { | { do_something1(); | do_something1(); | if (g_ucIntCnt == 100) | if (g_ucIntCnt &amp;gt;= 100) { | { do_something2(); | do_something2(); } | g_ucIntCnt = 0; | } g_ucIntCnt = 0; | do_something3(); | do_something3(); } | } } | } void main(void) { init(); loop(); } 请思考一下，程序中的 do_something2 会按预期每隔 100 个 rtc 单位运行一次吗？ 左边的代码中： 由于 do_something1 的代码复杂度未知，很大概率无法撞上 g_ucIntCnt = 100 的条件； 另一方面，如果 do_something1 很短，在主循环中，在 g_ucIntCnt 还很小时过早清 0，也会导致无法满足条件； 即使刚好凑巧，可以运行到 do_something2，假如函数内部有用到 g_ucIntCnt 也会导致程序错误。 右边的代码中： 如果 do_something1 过于复杂，导致运行完之后 g_ucIntCnt 已经溢出，也无法运行 do_something2； 同样有左边代码 3 的问题。 static volatile uint8_t g_ucIntCnt = 0; static volatile uint8_t g_ucIntCntFlag = 0; void RTC_ISR(void) interrupt 5 { g_ucIntCnt++; if (g_ucIntCnt == 100) { g_ucIntCntFlag = 1; } } void loop(void) { while (1) { do_something1(); if (g_ucIntCntFlag) { do_something2(); g_ucIntCnt = 0; g_ucIntCntFlag = 0; } do_something3(); } } void main(void) { init(); loop(); }</summary></entry><entry><title type="html">How to make a bread?</title><link href="/life/2021/10/26/make-bread.html" rel="alternate" type="text/html" title="How to make a bread?" /><published>2021-10-26T20:27:23+08:00</published><updated>2021-10-26T20:27:23+08:00</updated><id>/life/2021/10/26/make-bread</id><content type="html" xml:base="/life/2021/10/26/make-bread.html">&lt;p&gt;Few years ago, I watched a series of BBC documentary of
+“&lt;a href=&quot;https://www.imdb.com/title/tt2795962/&quot;&gt;Paul Hollywood’s Bread&lt;/a&gt;” and impressed me much.
+Then I try to make my own bread today, followed the guidance of &lt;a href=&quot;https://www.paulhollywood.com/post/apricot-couronne&quot;&gt;apricot-couronne&lt;/a&gt;,
+and successfully make a beautiful bread.&lt;/p&gt;</content><author><name></name></author><category term="Life" /><summary type="html">Few years ago, I watched a series of BBC documentary of “Paul Hollywood’s Bread” and impressed me much. Then I try to make my own bread today, followed the guidance of apricot-couronne, and successfully make a beautiful bread.</summary></entry><entry><title type="html">Hello world</title><link href="/public/2021/10/26/hello-world.html" rel="alternate" type="text/html" title="Hello world" /><published>2021-10-26T16:27:13+08:00</published><updated>2021-10-26T16:27:13+08:00</updated><id>/public/2021/10/26/hello-world</id><content type="html" xml:base="/public/2021/10/26/hello-world.html">&lt;p&gt;As a software engineer, my first blog should start with a “Hello world” program.&lt;/p&gt;
+
+&lt;figure class=&quot;highlight&quot;&gt;&lt;pre&gt;&lt;code class=&quot;language-ruby&quot; data-lang=&quot;ruby&quot;&gt;&lt;span class=&quot;k&quot;&gt;def&lt;/span&gt; &lt;span class=&quot;nf&quot;&gt;hello_world&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;()&lt;/span&gt;
+  &lt;span class=&quot;nb&quot;&gt;puts&lt;/span&gt; &lt;span class=&quot;s2&quot;&gt;&quot;Hello world&quot;&lt;/span&gt;
+&lt;span class=&quot;k&quot;&gt;end&lt;/span&gt;
+&lt;span class=&quot;n&quot;&gt;hello_world&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;()&lt;/span&gt;
+&lt;span class=&quot;c1&quot;&gt;#=&amp;gt; prints 'Hello world' to STDOUT.&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/figure&gt;
+
+&lt;p&gt;Another good examples for “&lt;a href=&quot;https://github.com/leachim6/hello-world&quot;&gt;Hello world&lt;/a&gt;”.&lt;/p&gt;</content><author><name></name></author><category term="Public" /><summary type="html">As a software engineer, my first blog should start with a “Hello world” program. def hello_world() puts &quot;Hello world&quot; end hello_world() #=&amp;gt; prints 'Hello world' to STDOUT. Another good examples for “Hello world”.</summary></entry></feed>
