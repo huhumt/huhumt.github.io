@@ -1,0 +1,34 @@
+# This is an example Starter pipeline configuration
+# Use a skeleton to build, test and deploy using manual and parallel steps
+# -----
+# You can specify a custom docker image from Docker Hub as your build environment.
+
+image: jekyll/builder@sha256:439d7a3d94dd0547f47de5ff03fa910ba93c45dd748bc2b0cde6446d1c322a80
+
+pipelines:
+  default:
+    - step:
+        name: 'Build blog'
+        script:
+          - echo "Building blog ..."
+          - bundle install && bundle exec jekyll build
+        artifacts:
+          - _site/**
+
+    - step:
+        name: 'Publish to huhumt.bitbucket.io'
+        script:
+          - echo "Publishing blog to huhumt.bitbucket.io ..."
+          - git config --global user.name blog_bot
+          - git config --global user.email blog_bot@bitbucket.org
+          - git clone git@bitbucket.org:huhumt/huhumt.bitbucket.io.git myblog
+          - cd myblog && cp -fr ../_site/* . && git add -A && bash -c 'git commit -a -m "Publish blog $(date +%F)"' && git push
+
+    - step:
+        name: 'Publish to huhumt.github.io'
+        script:
+          - echo "Publishing blog to huhumt.github.io ..."
+          - git config --global user.name blog_bot
+          - git config --global user.email blog_bot@bitbucket.org
+          - git clone https://${GITHUB_REPO_TOKEN}@github.com/huhumt/huhumt.github.io.git myblog
+          - cd myblog && cp -fr ../_site/* . && git add -A && bash -c 'git commit -a -m "Publish blog $(date +%F)"' && git push

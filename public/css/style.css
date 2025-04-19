@@ -95,8 +95,8 @@ code {
 	position: static; /*fixed;*/
 	display: flex;
 	flex-flow: column nowrap;
-	flex: 0 0 250px;
-	padding: 100px 15px;
+	flex: 0 0 210px;
+	padding: 30px 15px;
 	z-index: 1;
 	background-color: #222;
 	color: #fff;
@@ -127,7 +127,7 @@ code {
 }
 
 .sidebar-nav {
-	margin-top: 10px;
+	margin-top: 20px;
 }
 
 .nav-title {
@@ -324,11 +324,12 @@ footer {
 
 	.sidebar-nav {
 		margin: 0px;
-        padding: 20px 20px;
+        padding: 0px 0px;
 	}
 
 	.sidebar-item {
-		flex: 0 0 auto;
+		flex: 1 1 auto;
+        justify-content: center;
         align-items: center;
 	}
 
