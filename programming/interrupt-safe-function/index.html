@@ -72,16 +72,20 @@
 <!-- </div> -->
 </div>
 		<div class="content"><article class="post">
-	<header class="post-header">
-		<div class="post-title">
-			Write interrupt safe function
-		</div>
-		<time class="post-date dt-published" datetime="2021-10-27T07:32:23-05:00" itemprop="datePublished">2021/10/27
-		</time>
-	</header>
+    <header class="post-header">
+        <div class="post-title">Write interrupt safe function</div>
+        <time class="post-date dt-published" datetime="2021-10-27T07:32:23-05:00" itemprop="datePublished">
+            
+                <a class="prev" href="/life/make-bread/">&laquo; How to make a bread?</a>
+            2021/10/27
 
-	<div class="post-content">
-		<p>如何保证主函数被中断函数打断后正常运行？
+            
+                <a class="next" href="/life/UK-vegetables/">Uk Vegetables &raquo;</a>
+            
+        </time>
+    </header>
+
+    <div class="post-content"><p>如何保证主函数被中断函数打断后正常运行？
 先看如下的例子：</p>
 
 <figure class="highlight"><pre><code class="language-c" data-lang="c"><span class="k">static</span> <span class="k">volatile</span> <span class="kt">uint8_t</span> <span class="n">g_ucIntCnt</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
@@ -163,8 +167,7 @@
     <span class="n">loop</span><span class="p">();</span>
 <span class="p">}</span></code></pre></figure>
 
-
-	</div>
+</div>
 </article>
 
 <script src="https://giscus.app/client.js"
