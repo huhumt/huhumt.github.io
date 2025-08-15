@@ -52,7 +52,7 @@
 	    <li>
 	    	<a class="nav-item" href="/category/#Life">
 				<span class="name">Life</span>
-				<span class="badge">2</span>
+				<span class="badge">3</span>
 	    	</a>
  		</li>
 	    
@@ -88,97 +88,51 @@
     <div class="post-content"><p>如何保证主函数被中断函数打断后正常运行？
 先看如下的例子：</p>
 
-<p>``` c code
-static volatile uint8_t g_ucIntCnt = 0;</p>
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>static volatile uint8_t g_ucIntCnt = 0;
 
-<p>void RTC_ISR(void) interrupt 5
+void RTC_ISR(void) interrupt 5
 {
     g_ucIntCnt++;
-}</p>
+}
 
-<table>
-  <tbody>
-    <tr>
-      <td>void loop(void)</td>
-      <td>void loop(void)</td>
-    </tr>
-    <tr>
-      <td>{</td>
-      <td>{</td>
-    </tr>
-    <tr>
-      <td>while (1)</td>
-      <td>while (1)</td>
-    </tr>
-    <tr>
-      <td>{</td>
-      <td>{</td>
-    </tr>
-    <tr>
-      <td>do_something1();</td>
-      <td>do_something1();</td>
-    </tr>
-    <tr>
-      <td> </td>
-      <td> </td>
-    </tr>
-    <tr>
-      <td>if (g_ucIntCnt == 100)</td>
-      <td>if (g_ucIntCnt &gt;= 100)</td>
-    </tr>
-    <tr>
-      <td>{</td>
-      <td>{</td>
-    </tr>
-    <tr>
-      <td>do_something2();</td>
-      <td>do_something2();</td>
-    </tr>
-    <tr>
-      <td>}</td>
-      <td>g_ucIntCnt = 0;</td>
-    </tr>
-    <tr>
-      <td> </td>
-      <td>}</td>
-    </tr>
-    <tr>
-      <td>g_ucIntCnt = 0;</td>
-      <td> </td>
-    </tr>
-    <tr>
-      <td>do_something3();</td>
-      <td>do_something3();</td>
-    </tr>
-    <tr>
-      <td>}</td>
-      <td>}</td>
-    </tr>
-    <tr>
-      <td>}</td>
-      <td>}</td>
-    </tr>
-  </tbody>
-</table>
+void loop(void)                      |  void loop(void)
+{                                    |  {
+    while (1)                        |      while (1)
+    {                                |      {
+        do_something1();             |          do_something1();
+                                     |
+        if (g_ucIntCnt == 100)       |          if (g_ucIntCnt &gt;= 100)
+        {                            |          {
+            do_something2();         |              do_something2();
+        }                            |              g_ucIntCnt = 0;
+                                     |          }
+        g_ucIntCnt = 0;              |
+        do_something3();             |          do_something3();
+    }                                |      }
+}                                    |  }
 
-<p>void main(void)
+void main(void)
 {
     init();
     loop();
-}</p>
-<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>
-请思考一下，程序中的 do_something2 会按预期每隔 100 个 rtc 单位运行一次吗？&lt;br /&gt;
-左边的代码中：&lt;br /&gt;
-1. 由于 do_something1 的代码复杂度未知，很大概率无法撞上 g_ucIntCnt = 100 的条件；&lt;br /&gt;
-2. 另一方面，如果 do_something1 很短，在主循环中，在 g_ucIntCnt 还很小时过早清 0，也会导致无法满足条件；&lt;br /&gt;
-3. 即使刚好凑巧，可以运行到 do_something2，假如函数内部有用到 g_ucIntCnt 也会导致程序错误。&lt;br /&gt;
+}
+</code></pre></div></div>
 
-右边的代码中：&lt;br /&gt;
-4. 如果 do_something1 过于复杂，导致运行完之后 g_ucIntCnt 已经溢出，也无法运行 do_something2；&lt;br /&gt;
-5. 同样有左边代码 3 的问题。&lt;br /&gt;
+<p>请思考一下，程序中的 do_something2 会按预期每隔 100 个 rtc 单位运行一次吗？<br />
+左边的代码中：<br /></p>
+<ol>
+  <li>由于 do_something1 的代码复杂度未知，很大概率无法撞上 g_ucIntCnt = 100 的条件；<br /></li>
+  <li>另一方面，如果 do_something1 很短，在主循环中，在 g_ucIntCnt 还很小时过早清 0，也会导致无法满足条件；<br /></li>
+  <li>即使刚好凑巧，可以运行到 do_something2，假如函数内部有用到 g_ucIntCnt 也会导致程序错误。<br /></li>
+</ol>
 
-``` c code
-static volatile uint8_t g_ucIntCnt = 0;
+<p>右边的代码中：<br /></p>
+<ol>
+  <li>如果 do_something1 过于复杂，导致运行完之后 g_ucIntCnt 已经溢出，也无法运行 do_something2；<br /></li>
+  <li>同样有左边代码 3 的问题。<br /></li>
+</ol>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>static volatile uint8_t g_ucIntCnt = 0;
 static volatile uint8_t g_ucIntCntFlag = 0;
 
 void RTC_ISR(void) interrupt 5

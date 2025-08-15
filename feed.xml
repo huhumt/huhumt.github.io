@@ -1,4 +1,19 @@
-<?xml version="1.0" encoding="utf-8"?><feed xmlns="http://www.w3.org/2005/Atom" ><generator uri="https://jekyllrb.com/" version="3.10.0">Jekyll</generator><link href="https://huhumt.github.io/feed.xml" rel="self" type="application/atom+xml" /><link href="https://huhumt.github.io/" rel="alternate" type="text/html" /><updated>2025-08-15T06:11:01-05:00</updated><id>https://huhumt.github.io/feed.xml</id><subtitle>This is my own small site</subtitle><entry><title type="html">Uk Vegetables</title><link href="https://huhumt.github.io/life/UK-vegetables/" rel="alternate" type="text/html" title="Uk Vegetables" /><published>2025-04-30T00:00:00-05:00</published><updated>2025-04-30T00:00:00-05:00</updated><id>https://huhumt.github.io/life/UK-vegetables</id><content type="html" xml:base="https://huhumt.github.io/life/UK-vegetables/"><![CDATA[<h1 id="英國花園蔬菜-uk-vegetable-gardening">英國花園蔬菜 (UK vegetable gardening)</h1>
+<?xml version="1.0" encoding="utf-8"?><feed xmlns="http://www.w3.org/2005/Atom" ><generator uri="https://jekyllrb.com/" version="3.10.0">Jekyll</generator><link href="https://huhumt.github.io/feed.xml" rel="self" type="application/atom+xml" /><link href="https://huhumt.github.io/" rel="alternate" type="text/html" /><updated>2025-08-15T06:37:15-05:00</updated><id>https://huhumt.github.io/feed.xml</id><subtitle>This is my own small site</subtitle><entry><title type="html">Uk Life</title><link href="https://huhumt.github.io/life/UK-life/" rel="alternate" type="text/html" title="Uk Life" /><published>2025-08-15T00:00:00-05:00</published><updated>2025-08-15T00:00:00-05:00</updated><id>https://huhumt.github.io/life/UK-life</id><content type="html" xml:base="https://huhumt.github.io/life/UK-life/"><![CDATA[<h1 id="在英國的生活">在英國的生活</h1>
+
+<p>從 2022 年開始，不知不覺已經在英國工作生活了 3 年之久。從一開始的新鮮到現在的平淡，
+也該稍稍記錄一下各種感想。</p>
+
+<h2 id="工作">工作</h2>
+
+<p>總體來說，這邊更加追求工作生活平衡，工作壓力不大。每天工作 7.5 小時，一週 37.5 小時。
+其中上午 10:00 ~ 16:00 是核心工作時間，工作會議也基本安排在這段時間內，其餘是彈性
+安排。每週至少去辦公室 3 天，剩下的 2 天可以居家辦公。工作基本要求按時完成工作
+任務，無特別的考勤制度。目前是 25 天的年假，總體比較滿意。</p>
+
+<h2 id="生活">生活</h2>
+
+<p>英國的生活更多的是一言難盡，畢竟離開了熟悉的地方，連根拔起來到一個新的地方從頭開始
+總是會有各種各樣的困難，不過總體上還是適合居家生活的地方。</p>]]></content><author><name></name></author><category term="Life" /><category term="Life" /><summary type="html"><![CDATA[在英國的生活]]></summary></entry><entry><title type="html">Uk Vegetables</title><link href="https://huhumt.github.io/life/UK-vegetables/" rel="alternate" type="text/html" title="Uk Vegetables" /><published>2025-04-30T00:00:00-05:00</published><updated>2025-04-30T00:00:00-05:00</updated><id>https://huhumt.github.io/life/UK-vegetables</id><content type="html" xml:base="https://huhumt.github.io/life/UK-vegetables/"><![CDATA[<h1 id="英國花園蔬菜-uk-vegetable-gardening">英國花園蔬菜 (UK vegetable gardening)</h1>
 
 <h2 id="多年生蔬菜-perenninal-vegetables">多年生蔬菜 (perenninal vegetables)</h2>
 
@@ -14,97 +29,51 @@
 </ul>]]></content><author><name></name></author><category term="Life" /><category term="Life" /><category term="2025" /><summary type="html"><![CDATA[英國花園蔬菜 (UK vegetable gardening)]]></summary></entry><entry><title type="html">Write interrupt safe function</title><link href="https://huhumt.github.io/programming/interrupt-safe-function/" rel="alternate" type="text/html" title="Write interrupt safe function" /><published>2021-10-27T07:32:23-05:00</published><updated>2021-10-27T07:32:23-05:00</updated><id>https://huhumt.github.io/programming/interrupt-safe-function</id><content type="html" xml:base="https://huhumt.github.io/programming/interrupt-safe-function/"><![CDATA[<p>如何保证主函数被中断函数打断后正常运行？
 先看如下的例子：</p>
 
-<p>``` c code
-static volatile uint8_t g_ucIntCnt = 0;</p>
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>static volatile uint8_t g_ucIntCnt = 0;
 
-<p>void RTC_ISR(void) interrupt 5
+void RTC_ISR(void) interrupt 5
 {
     g_ucIntCnt++;
-}</p>
+}
 
-<table>
-  <tbody>
-    <tr>
-      <td>void loop(void)</td>
-      <td>void loop(void)</td>
-    </tr>
-    <tr>
-      <td>{</td>
-      <td>{</td>
-    </tr>
-    <tr>
-      <td>while (1)</td>
-      <td>while (1)</td>
-    </tr>
-    <tr>
-      <td>{</td>
-      <td>{</td>
-    </tr>
-    <tr>
-      <td>do_something1();</td>
-      <td>do_something1();</td>
-    </tr>
-    <tr>
-      <td> </td>
-      <td> </td>
-    </tr>
-    <tr>
-      <td>if (g_ucIntCnt == 100)</td>
-      <td>if (g_ucIntCnt &gt;= 100)</td>
-    </tr>
-    <tr>
-      <td>{</td>
-      <td>{</td>
-    </tr>
-    <tr>
-      <td>do_something2();</td>
-      <td>do_something2();</td>
-    </tr>
-    <tr>
-      <td>}</td>
-      <td>g_ucIntCnt = 0;</td>
-    </tr>
-    <tr>
-      <td> </td>
-      <td>}</td>
-    </tr>
-    <tr>
-      <td>g_ucIntCnt = 0;</td>
-      <td> </td>
-    </tr>
-    <tr>
-      <td>do_something3();</td>
-      <td>do_something3();</td>
-    </tr>
-    <tr>
-      <td>}</td>
-      <td>}</td>
-    </tr>
-    <tr>
-      <td>}</td>
-      <td>}</td>
-    </tr>
-  </tbody>
-</table>
+void loop(void)                      |  void loop(void)
+{                                    |  {
+    while (1)                        |      while (1)
+    {                                |      {
+        do_something1();             |          do_something1();
+                                     |
+        if (g_ucIntCnt == 100)       |          if (g_ucIntCnt &gt;= 100)
+        {                            |          {
+            do_something2();         |              do_something2();
+        }                            |              g_ucIntCnt = 0;
+                                     |          }
+        g_ucIntCnt = 0;              |
+        do_something3();             |          do_something3();
+    }                                |      }
+}                                    |  }
 
-<p>void main(void)
+void main(void)
 {
     init();
     loop();
-}</p>
-<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>
-请思考一下，程序中的 do_something2 会按预期每隔 100 个 rtc 单位运行一次吗？&lt;br /&gt;
-左边的代码中：&lt;br /&gt;
-1. 由于 do_something1 的代码复杂度未知，很大概率无法撞上 g_ucIntCnt = 100 的条件；&lt;br /&gt;
-2. 另一方面，如果 do_something1 很短，在主循环中，在 g_ucIntCnt 还很小时过早清 0，也会导致无法满足条件；&lt;br /&gt;
-3. 即使刚好凑巧，可以运行到 do_something2，假如函数内部有用到 g_ucIntCnt 也会导致程序错误。&lt;br /&gt;
+}
+</code></pre></div></div>
 
-右边的代码中：&lt;br /&gt;
-4. 如果 do_something1 过于复杂，导致运行完之后 g_ucIntCnt 已经溢出，也无法运行 do_something2；&lt;br /&gt;
-5. 同样有左边代码 3 的问题。&lt;br /&gt;
+<p>请思考一下，程序中的 do_something2 会按预期每隔 100 个 rtc 单位运行一次吗？<br />
+左边的代码中：<br /></p>
+<ol>
+  <li>由于 do_something1 的代码复杂度未知，很大概率无法撞上 g_ucIntCnt = 100 的条件；<br /></li>
+  <li>另一方面，如果 do_something1 很短，在主循环中，在 g_ucIntCnt 还很小时过早清 0，也会导致无法满足条件；<br /></li>
+  <li>即使刚好凑巧，可以运行到 do_something2，假如函数内部有用到 g_ucIntCnt 也会导致程序错误。<br /></li>
+</ol>
 
-``` c code
-static volatile uint8_t g_ucIntCnt = 0;
+<p>右边的代码中：<br /></p>
+<ol>
+  <li>如果 do_something1 过于复杂，导致运行完之后 g_ucIntCnt 已经溢出，也无法运行 do_something2；<br /></li>
+  <li>同样有左边代码 3 的问题。<br /></li>
+</ol>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>static volatile uint8_t g_ucIntCnt = 0;
 static volatile uint8_t g_ucIntCntFlag = 0;
 
 void RTC_ISR(void) interrupt 5
@@ -139,7 +108,7 @@ void main(void)
     init();
     loop();
 }
-</code></pre></div></div>]]></content><author><name></name></author><category term="Programming" /><category term="Programming" /><category term="2021" /><summary type="html"><![CDATA[如何保证主函数被中断函数打断后正常运行？ 先看如下的例子： ``` c code static volatile uint8_t g_ucIntCnt = 0; void RTC_ISR(void) interrupt 5 { g_ucIntCnt++; } void loop(void) void loop(void) { { while (1) while (1) { { do_something1(); do_something1();     if (g_ucIntCnt == 100) if (g_ucIntCnt &gt;= 100) { { do_something2(); do_something2(); } g_ucIntCnt = 0;   } g_ucIntCnt = 0;   do_something3(); do_something3(); } } } } void main(void) { init(); loop(); } 请思考一下，程序中的 do_something2 会按预期每隔 100 个 rtc 单位运行一次吗？&lt;br /&gt; 左边的代码中：&lt;br /&gt; 1. 由于 do_something1 的代码复杂度未知，很大概率无法撞上 g_ucIntCnt = 100 的条件；&lt;br /&gt; 2. 另一方面，如果 do_something1 很短，在主循环中，在 g_ucIntCnt 还很小时过早清 0，也会导致无法满足条件；&lt;br /&gt; 3. 即使刚好凑巧，可以运行到 do_something2，假如函数内部有用到 g_ucIntCnt 也会导致程序错误。&lt;br /&gt; 右边的代码中：&lt;br /&gt; 4. 如果 do_something1 过于复杂，导致运行完之后 g_ucIntCnt 已经溢出，也无法运行 do_something2；&lt;br /&gt; 5. 同样有左边代码 3 的问题。&lt;br /&gt; ``` c code static volatile uint8_t g_ucIntCnt = 0; static volatile uint8_t g_ucIntCntFlag = 0; void RTC_ISR(void) interrupt 5 { g_ucIntCnt++; if (g_ucIntCnt == 100) { g_ucIntCntFlag = 1; } } void loop(void) { while (1) { do_something1(); if (g_ucIntCntFlag) { do_something2(); g_ucIntCnt = 0; g_ucIntCntFlag = 0; } do_something3(); } } void main(void) { init(); loop(); }]]></summary></entry><entry><title type="html">How to make a bread?</title><link href="https://huhumt.github.io/life/make-bread/" rel="alternate" type="text/html" title="How to make a bread?" /><published>2021-10-26T07:27:23-05:00</published><updated>2021-10-26T07:27:23-05:00</updated><id>https://huhumt.github.io/life/make-bread</id><content type="html" xml:base="https://huhumt.github.io/life/make-bread/"><![CDATA[<p>Few years ago, I watched a series of BBC documentary of
+</code></pre></div></div>]]></content><author><name></name></author><category term="Programming" /><category term="Programming" /><category term="2021" /><summary type="html"><![CDATA[如何保证主函数被中断函数打断后正常运行？ 先看如下的例子： static volatile uint8_t g_ucIntCnt = 0; void RTC_ISR(void) interrupt 5 { g_ucIntCnt++; } void loop(void) | void loop(void) { | { while (1) | while (1) { | { do_something1(); | do_something1(); | if (g_ucIntCnt == 100) | if (g_ucIntCnt &gt;= 100) { | { do_something2(); | do_something2(); } | g_ucIntCnt = 0; | } g_ucIntCnt = 0; | do_something3(); | do_something3(); } | } } | } void main(void) { init(); loop(); } 请思考一下，程序中的 do_something2 会按预期每隔 100 个 rtc 单位运行一次吗？ 左边的代码中： 由于 do_something1 的代码复杂度未知，很大概率无法撞上 g_ucIntCnt = 100 的条件； 另一方面，如果 do_something1 很短，在主循环中，在 g_ucIntCnt 还很小时过早清 0，也会导致无法满足条件； 即使刚好凑巧，可以运行到 do_something2，假如函数内部有用到 g_ucIntCnt 也会导致程序错误。 右边的代码中： 如果 do_something1 过于复杂，导致运行完之后 g_ucIntCnt 已经溢出，也无法运行 do_something2； 同样有左边代码 3 的问题。 static volatile uint8_t g_ucIntCnt = 0; static volatile uint8_t g_ucIntCntFlag = 0; void RTC_ISR(void) interrupt 5 { g_ucIntCnt++; if (g_ucIntCnt == 100) { g_ucIntCntFlag = 1; } } void loop(void) { while (1) { do_something1(); if (g_ucIntCntFlag) { do_something2(); g_ucIntCnt = 0; g_ucIntCntFlag = 0; } do_something3(); } } void main(void) { init(); loop(); }]]></summary></entry><entry><title type="html">How to make a bread?</title><link href="https://huhumt.github.io/life/make-bread/" rel="alternate" type="text/html" title="How to make a bread?" /><published>2021-10-26T07:27:23-05:00</published><updated>2021-10-26T07:27:23-05:00</updated><id>https://huhumt.github.io/life/make-bread</id><content type="html" xml:base="https://huhumt.github.io/life/make-bread/"><![CDATA[<p>Few years ago, I watched a series of BBC documentary of
 “<a href="https://www.imdb.com/title/tt2795962/">Paul Hollywood’s Bread</a>” and it impressed me much.</p>
 
 <p>Today I try to make my own bread following the guidance of <a href="https://www.paulhollywood.com/post/apricot-couronne">apricot-couronne</a>.
