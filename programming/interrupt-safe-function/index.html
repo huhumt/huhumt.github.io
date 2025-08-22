@@ -132,15 +132,15 @@ void main(void)
   <li>同样有左边代码 3 的问题。<br /></li>
 </ol>
 
-<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>static volatile uint8_t g_ucIntCnt = 0;
-static volatile uint8_t g_ucIntCntFlag = 0;
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>static volatile uint8_t g_ucIntCntFlag = 0;
 
 void RTC_ISR(void) interrupt 5
 {
-    g_ucIntCnt++;
+    static volatile uint8_t g_ucIntCnt = 0;
 
-    if (g_ucIntCnt == 100)
+    if (++g_ucIntCnt &gt; 100)
     {
+        g_ucIntCnt = 0;
         g_ucIntCntFlag = 1;
     }
 }
@@ -154,7 +154,6 @@ void loop(void)
         if (g_ucIntCntFlag)
         {
             do_something2();
-            g_ucIntCnt = 0;
             g_ucIntCntFlag = 0;
         }
 
